@@ -52,6 +52,12 @@ class BasicCollectionViewController: UICollectionViewController {
             subitem: item,
             count: 1)
         
+        group.contentInsets = NSDirectionalEdgeInsets(
+            top: spacing,
+            leading: spacing,
+            bottom: 0,
+            trailing: spacing)
+        
         let section = NSCollectionLayoutSection(group: group)
         
         let layout = UICollectionViewCompositionalLayout(section: section)
@@ -73,6 +79,8 @@ class BasicCollectionViewController: UICollectionViewController {
 
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        
+        
         return items.count
     }
 
