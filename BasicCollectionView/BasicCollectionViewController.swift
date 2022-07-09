@@ -9,26 +9,36 @@ import UIKit
 
 private let reuseIdentifier = "Cell"
 
-class BasicCollectionViewController: UICollectionViewController {
+private let items = [
+    "Alabama", "Alaska", "Arizona", "Arkansas", "California",
+    "Colorado", "Connecticut", "Delaware", "Florida",
+    "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa",
+    "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland",
+    "Massachusetts", "Michigan", "Minnesota", "Mississippi",
+    "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire",
+    "New Jersey", "New Mexico", "New York", "North Carolina",
+    "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania",
+    "Rhode Island", "South Carolina", "South Dakota", "Tennessee",
+    "Texas", "Utah", "Vermont", "Virginia", "Washington",
+    "West Virginia", "Wisconsin", "Wyoming"
+]
+
+class BasicCollectionViewController: UICollectionViewController, UISearchResultsUpdating {
+
     
-    private let items = [
-        "Alabama", "Alaska", "Arizona", "Arkansas", "California",
-        "Colorado", "Connecticut", "Delaware", "Florida",
-        "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa",
-        "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland",
-        "Massachusetts", "Michigan", "Minnesota", "Mississippi",
-        "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire",
-        "New Jersey", "New Mexico", "New York", "North Carolina",
-        "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania",
-        "Rhode Island", "South Carolina", "South Dakota", "Tennessee",
-        "Texas", "Utah", "Vermont", "Virginia", "Washington",
-        "West Virginia", "Wisconsin", "Wyoming"
-    ]
+    var filterdItems: [String] = items
+    let searchController = UISearchController()
+
+    
+    
 
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        navigationItem.searchController = searchController
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchResultsUpdater = self
+        navigationItem.hidesSearchBarWhenScrolling = false
         collectionView.setCollectionViewLayout(generateLayout(), animated: false)
 
     }
@@ -64,6 +74,17 @@ class BasicCollectionViewController: UICollectionViewController {
         
         return layout
     }
+    
+    func updateSearchResults(for searchController: UISearchController) {
+        if let searchString = searchController.searchBar.text, searchString.isEmpty == false {
+            filterdItems = items.filter({ item in
+                item.localizedCaseInsensitiveContains(searchString)
+            })
+        } else {
+            filterdItems = items
+        }
+        collectionView.reloadData()
+    }
 
     /*
     // MARK: - Navigation
@@ -81,13 +102,13 @@ class BasicCollectionViewController: UICollectionViewController {
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         
-        return items.count
+        return filterdItems.count
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! BasicCollectionViewCell
     
-        cell.textLabel.text = items[indexPath.item]
+        cell.textLabel.text = filterdItems[indexPath.item]
     
         return cell
     }
