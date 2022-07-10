@@ -25,8 +25,20 @@ private let items = [
 
 class BasicCollectionViewController: UICollectionViewController, UISearchResultsUpdating {
 
-    
+    enum Section: CaseIterable {
+        case main
+    }
+    var dataSource: UICollectionViewDiffableDataSource<Section, String>!
     var filterdItems: [String] = items
+    
+    var filteredItemsSnapshot: NSDiffableDataSourceSnapshot<Section, String> {
+        var snapshot = NSDiffableDataSourceSnapshot<Section, String>()
+        snapshot.appendSections([.main])
+        snapshot.appendItems(filterdItems)
+        
+        return snapshot
+    }
+    
     let searchController = UISearchController()
 
     
@@ -40,6 +52,7 @@ class BasicCollectionViewController: UICollectionViewController, UISearchResults
         searchController.searchResultsUpdater = self
         navigationItem.hidesSearchBarWhenScrolling = false
         collectionView.setCollectionViewLayout(generateLayout(), animated: false)
+        createDataSource()
 
     }
     
@@ -83,7 +96,19 @@ class BasicCollectionViewController: UICollectionViewController, UISearchResults
         } else {
             filterdItems = items
         }
-        collectionView.reloadData()
+        dataSource.apply(filteredItemsSnapshot, animatingDifferences: true)
+    }
+    
+    func createDataSource() {
+        dataSource = UICollectionViewDiffableDataSource<Section, String>(collectionView: collectionView, cellProvider: { (collectionView, indexPath, itemIdentifier) -> UICollectionViewCell? in
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! BasicCollectionViewCell
+            cell.textLabel.text = itemIdentifier
+            
+            
+            
+            return cell
+        })
+        dataSource.apply(filteredItemsSnapshot)
     }
 
     /*
@@ -96,22 +121,6 @@ class BasicCollectionViewController: UICollectionViewController, UISearchResults
     }
     */
 
-    // MARK: UICollectionViewDataSource
-
-
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        
-        
-        return filterdItems.count
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! BasicCollectionViewCell
-    
-        cell.textLabel.text = filterdItems[indexPath.item]
-    
-        return cell
-    }
 
     // MARK: UICollectionViewDelegate
 
